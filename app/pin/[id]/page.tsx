@@ -5,6 +5,8 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { formatPinDate } from "@/lib/date";
 import type { PinWithRelations } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function PinDetailPage({
   params,
 }: {

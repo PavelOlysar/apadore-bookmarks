@@ -4,6 +4,11 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { serverEnv } from "@/lib/env";
 import type { PinWithRelations } from "@/lib/types";
 
+// Always render at request time — uses cookies() via Supabase.
+// Without this, the OpenNext Cloudflare adapter tries to pre-render
+// and crashes because `cookies()` isn't available at build time.
+export const dynamic = "force-dynamic";
+
 type LoadResult =
   | { ok: true; pins: PinWithRelations[] }
   | { ok: false; reason: "missing-env"; missing: string[] }

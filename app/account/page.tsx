@@ -3,6 +3,8 @@ import { TopNav } from "@/components/TopNav";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { AccountActions } from "./AccountActions";
 
+export const dynamic = "force-dynamic";
+
 export default async function AccountPage() {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();

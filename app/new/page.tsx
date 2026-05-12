@@ -4,6 +4,8 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 import { NewPinForm } from "./NewPinForm";
 import type { Category, Tag } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewPinPage() {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();

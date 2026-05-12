@@ -6,6 +6,8 @@ import { updatePinAction, deletePinAction } from "./actions";
 import { DeletePinButton } from "./DeletePinButton";
 import type { Category, Tag, PinWithRelations } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function EditPinPage({
   params,
 }: {
