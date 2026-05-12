@@ -29,6 +29,7 @@ async function loadPins(): Promise<LoadResult> {
       .limit(120);
 
     if (error) {
+      console.error("[loadPins] supabase query error:", error);
       return { ok: false, reason: "query-failed", message: error.message };
     }
 
@@ -39,6 +40,7 @@ async function loadPins(): Promise<LoadResult> {
 
     return { ok: true, pins };
   } catch (err: any) {
+    console.error("[loadPins] threw:", err);
     return {
       ok: false,
       reason: "query-failed",
