@@ -10,5 +10,8 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  // Preserve dashboard-set Variables and Secrets across deploys.
+  // Without this, every `wrangler deploy` wipes the worker's env vars.
+  "keep_vars": true
 }
