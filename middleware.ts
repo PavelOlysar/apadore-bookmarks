@@ -1,20 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { serverEnv } from "@/lib/env";
 
 const PUBLIC_PATHS = ["/login", "/auth/callback"];
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
 
-  // Local dev fallback: if Supabase isn't configured yet, skip the auth gate
-  // so the UI is browseable while you wire up the backend.
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  const url = serverEnv("NEXT_PUBLIC_SUPABASE_URL");
+  const anonKey = serverEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+
+  // If Supabase isn't configured, skip the auth gate so the UI is at least
+  // browseable. The home page renders a clear "Configuration missing" error.
+  if (!url || !anonKey) {
     return res;
   }
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll: () => req.cookies.getAll(),

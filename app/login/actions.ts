@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { getSupabaseServer } from '@/lib/supabase/server'
+import { serverEnv } from '@/lib/env'
 
 export type AuthField =
   | 'email'
@@ -54,7 +55,7 @@ export async function signUpAction(
   if (!inviteCode)
     return { error: 'Invite code is required.', field: 'invite_code' }
 
-  const expected = process.env.INVITE_CODE
+  const expected = serverEnv('INVITE_CODE')
   if (!expected) {
     return {
       error: 'Signup is disabled (no invite code configured).',

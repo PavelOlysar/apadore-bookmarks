@@ -34,10 +34,29 @@ export async function fetchOg(url: string): Promise<OgResult | null> {
       meta('meta[name="twitter:title"]') ||
       ($("title").first().text().trim() || undefined);
 
-    const description =
+    let description: string | undefined =
       meta('meta[property="og:description"]') ||
       meta('meta[name="twitter:description"]') ||
+      meta('meta[property="article:description"]') ||
+      meta('meta[itemprop="description"]') ||
       meta('meta[name="description"]');
+
+    // Last-resort fallback: pull the first non-empty paragraph from the body.
+    // Useful for sites that don't expose any description meta tag.
+    if (!description) {
+      const candidates = [
+        $("article p").first(),
+        $("main p").first(),
+        $("body p").first(),
+      ];
+      for (const $p of candidates) {
+        const text = $p.text().trim().replace(/\s+/g, " ");
+        if (text.length >= 30) {
+          description = text.length > 280 ? text.slice(0, 277) + "…" : text;
+          break;
+        }
+      }
+    }
 
     let image =
       meta('meta[property="og:image"]') ||
