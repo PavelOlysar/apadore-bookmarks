@@ -106,6 +106,31 @@ export function NewPinForm({
     });
   }
 
+  // Pulls just title + description from the URL — does NOT touch the image.
+  // Overwrites any existing values (explicit user action, so they want fresh data).
+  const [infoBusy, startInfoBusy] = useTransition();
+  const [infoError, setInfoError] = useState<string | null>(null);
+  function handleFetchInfo() {
+    setInfoError(null);
+    if (!sourceUrl.trim()) {
+      setInfoError("Paste a URL first.");
+      return;
+    }
+    startInfoBusy(async () => {
+      const res = await fetchOgAction(sourceUrl);
+      if (!res) return;
+      if (!res.ok) {
+        setInfoError(res.error);
+        return;
+      }
+      const og = res.data;
+      let any = false;
+      if (og.title) { setTitle(og.title); any = true; }
+      if (og.description) { setDescription(og.description); any = true; }
+      if (!any) setInfoError("This page doesn't expose a title or description.");
+    });
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -278,9 +303,20 @@ export function NewPinForm({
 
       {/* RIGHT — metadata fields */}
       <div className="space-y-7">
-        {/* Title */}
+        {/* Title with inline Fetch-info action */}
         <div>
-          <label className="eyebrow block mb-1.5">Title</label>
+          <div className="flex items-baseline justify-between mb-1.5">
+            <label className="eyebrow">Title</label>
+            <button
+              type="button"
+              onClick={handleFetchInfo}
+              disabled={infoBusy || !sourceUrl.trim()}
+              className="btn-ghost text-xs"
+              title="Pull title + description from the URL"
+            >
+              {infoBusy ? "Fetching…" : "Fetch info from URL"}
+            </button>
+          </div>
           <input
             type="text"
             value={title}
@@ -288,6 +324,7 @@ export function NewPinForm({
             maxLength={200}
             className="input"
           />
+          {infoError && <p className="mt-2 text-sm text-red-700">{infoError}</p>}
         </div>
 
         {/* Description */}
