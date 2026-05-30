@@ -38,6 +38,13 @@ export default async function PinDetailPage({
 
   const canEdit = !!user && user.id === pin.saved_by;
 
+  // Size the media box to the image's own aspect ratio so it fills the frame
+  // with no letterboxing. Unknown dimensions fall back to natural height.
+  const aspect =
+    pin.image_width && pin.image_height
+      ? `${pin.image_width} / ${pin.image_height}`
+      : undefined;
+
   return (
     <>
       <TopNav />
@@ -59,34 +66,39 @@ export default async function PinDetailPage({
 
         <h1 className="display-2 mt-6 max-w-3xl">{pin.title ?? "Untitled"}</h1>
 
-        {/* Media — always object-contain on a softer cream so the entire frame is visible */}
-        <div
-          className="mt-12 border border-rule bg-[#ece9dc] relative overflow-hidden"
-          style={{ aspectRatio: "16 / 9" }}
-        >
-          {pin.video_url ? (
-            <video
-              src={pin.video_url}
-              poster={pin.image_url ?? undefined}
-              muted
-              loop
-              playsInline
-              autoPlay
-              className="absolute inset-0 h-full w-full object-contain"
-            />
-          ) : pin.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={pin.image_url}
-              alt={pin.title ?? ""}
-              className="absolute inset-0 h-full w-full object-contain"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-ink-faint">
-              <span className="eyebrow">No media</span>
-            </div>
-          )}
-        </div>
+        {/* Media — fills its frame at the image's natural aspect ratio (no letterbox) */}
+        {pin.image_url || pin.video_url ? (
+          <div
+            className="mt-12 border border-rule bg-rule/40 relative overflow-hidden"
+            style={aspect ? { aspectRatio: aspect } : undefined}
+          >
+            {pin.video_url ? (
+              <video
+                src={pin.video_url}
+                poster={pin.image_url ?? undefined}
+                muted
+                loop
+                playsInline
+                autoPlay
+                className={aspect ? "absolute inset-0 h-full w-full object-cover" : "block w-full h-auto"}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={pin.image_url!}
+                alt={pin.title ?? ""}
+                className={aspect ? "absolute inset-0 h-full w-full object-cover" : "block w-full h-auto"}
+              />
+            )}
+          </div>
+        ) : (
+          <div
+            className="mt-12 border border-rule bg-[#ece9dc] relative overflow-hidden flex items-center justify-center text-ink-faint"
+            style={{ aspectRatio: "16 / 9" }}
+          >
+            <span className="eyebrow">No media</span>
+          </div>
+        )}
 
         {pin.description && (
           <p className="mt-12 max-w-prose leading-relaxed text-[15.5px]">
