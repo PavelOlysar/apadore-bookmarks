@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { getSupabaseServer } from '@/lib/supabase/server'
 import { serverEnv } from '@/lib/env'
+import { humanizeAuthError } from '@/lib/supabase/errors'
 
 export type AuthField =
   | 'email'
@@ -25,8 +26,9 @@ export async function signInAction(
   const supabase = await getSupabaseServer()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) {
+    console.error('[signInAction] supabase auth error:', error)
     // Supabase doesn't tell us which side is wrong; flag the password as a sensible default.
-    return { error: error.message, field: 'password' }
+    return { error: humanizeAuthError(error), field: 'password' }
   }
 
   redirect('/')
@@ -68,7 +70,10 @@ export async function signUpAction(
 
   const supabase = await getSupabaseServer()
   const { data, error } = await supabase.auth.signUp({ email, password })
-  if (error) return { error: error.message, field: 'email' }
+  if (error) {
+    console.error('[signUpAction] supabase signUp error:', error)
+    return { error: humanizeAuthError(error), field: 'email' }
+  }
 
   // Sign in explicitly so they land on the grid immediately instead of bouncing to /login.
   const signIn = await supabase.auth.signInWithPassword({ email, password })

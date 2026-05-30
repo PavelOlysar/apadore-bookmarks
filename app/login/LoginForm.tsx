@@ -78,7 +78,9 @@ export function LoginForm() {
         )}
 
         {state?.error && (
-          <p className="text-sm text-red-700">{state.error}</p>
+          <p className="text-sm text-red-700">
+            {typeof state.error === "string" ? state.error : "Something went wrong. Please try again."}
+          </p>
         )}
 
         <button type="submit" disabled={pending} className="btn-primary mt-2 w-full">
